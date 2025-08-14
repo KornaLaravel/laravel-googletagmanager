@@ -35,22 +35,34 @@ class GoogleTagManagerServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../resources/config/config.php', 'googletagmanager');
 
-        $this->app->singleton(GoogleTagManager::class, function($app) {
-            $googleTagManager = new GoogleTagManager(
-                config('googletagmanager.id'),
-                config('googletagmanager.domain')
-            );
+        if (method_exists($this->app, 'scoped')) {
+            $this->app->scoped(GoogleTagManager::class, function($app) {
+                return $this->createGoogleTagManagerInstance($app);
+            });
+        } else {
+            $this->app->singleton(GoogleTagManager::class, function($app) {
+                return $this->createGoogleTagManagerInstance($app);
+            });
+        }
 
-            if (config('googletagmanager.enabled') === false) {
-                $googleTagManager->disable();
-            }
-
-            return $googleTagManager;
-        });
         $this->app->alias(GoogleTagManager::class, 'googletagmanager');
 
         if (is_file(config('googletagmanager.macroPath'))) {
             include config('googletagmanager.macroPath');
         }
+    }
+
+    private function createGoogleTagManagerInstance($app)
+    {
+        $googleTagManager = new GoogleTagManager(
+            config('googletagmanager.id'),
+            config('googletagmanager.domain')
+        );
+
+        if (config('googletagmanager.enabled') === false) {
+            $googleTagManager->disable();
+        }
+
+        return $googleTagManager;
     }
 }
