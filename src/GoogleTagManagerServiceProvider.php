@@ -52,7 +52,7 @@ class GoogleTagManagerServiceProvider extends ServiceProvider
         }
     }
 
-    private function createGoogleTagManagerInstance($app)
+    protected function createGoogleTagManagerInstance($app)
     {
         $googleTagManager = new GoogleTagManager(
             config('googletagmanager.id'),
