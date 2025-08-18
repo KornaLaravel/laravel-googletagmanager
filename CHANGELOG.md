@@ -2,6 +2,18 @@
 
 All notable changes to `laravel-googletagmanager` will be documented in this file
 
+## 2.8.1 - 2025-08-18
+
+### What's Changed
+
+* Add support for Laravel Octane by using the "scoped" method if it exists by @bram-pkg in https://github.com/spatie/laravel-googletagmanager/pull/57
+
+### New Contributors
+
+* @bram-pkg made their first contribution in https://github.com/spatie/laravel-googletagmanager/pull/57
+
+**Full Changelog**: https://github.com/spatie/laravel-googletagmanager/compare/2.8.0...2.8.1
+
 ## 2.8.0 - 2025-05-09
 
 ### What's Changed
