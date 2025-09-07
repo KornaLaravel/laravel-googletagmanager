@@ -16,25 +16,25 @@ jobs:
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
     steps:
-      -  name: Checkout code
-         uses: actions/checkout@v5
+      - name: Checkout code
+        uses: actions/checkout@v5
 
-      -  name: Setup PHP
-         uses: shivammathur/setup-php@v2
-         with:
-           php-version: ${{ matrix.php }}
-           extensions: fileinfo
-           coverage: pcov
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          extensions: fileinfo
+          coverage: pcov
 
-      -  name: Setup problem matchers
-         run: |
-           echo "::add-matcher::${{ runner.tool_cache }}/php.json"
-           echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+      - name: Setup problem matchers
+        run: |
+          echo "::add-matcher::${{ runner.tool_cache }}/php.json"
+          echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
-      -  name: Install dependencies
-         run: |
-           composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
-           composer update --prefer-stable --prefer-dist --no-interaction --no-suggest
+      - name: Install dependencies
+        run: |
+          composer require "laravel/framework:${{ matrix.laravel }}" --no-interaction --no-update
+          composer update --prefer-stable --prefer-dist --no-interaction --no-suggest
 
-      -  name: Execute tests
-         run: vendor/bin/pest --coverage
+      - name: Execute tests
+        run: vendor/bin/pest --coverage
