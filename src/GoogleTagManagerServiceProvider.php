@@ -45,10 +45,5 @@ class GoogleTagManagerServiceProvider extends ServiceProvider
         });
 
         $this->app->alias(GoogleTagManager::class, 'googletagmanager');
-
-        $macroPath = $this->app->make(ConfigRepository::class)->get('googletagmanager.macroPath');
-        if (is_string($macroPath) && is_file($macroPath)) {
-            include $macroPath;
-        }
     }
 }

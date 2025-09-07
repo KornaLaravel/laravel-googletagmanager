@@ -26,6 +26,7 @@
     },
     "require-dev": {
         "laravel/pint": "^1.24",
+        "orchestra/testbench": "^10.6",
         "pestphp/pest": "^3.0 | ^4.0",
         "pestphp/pest-plugin-type-coverage": "^3.0 | ^4.0",
         "phpstan/phpstan": "^2.1"
@@ -37,7 +38,7 @@
     },
     "autoload-dev": {
         "psr-4": {
-            "Spatie\\GoogleTagManager\\Tests\\": "tests"
+            "Tests\\": "tests"
         }
     },
     "extra": {
