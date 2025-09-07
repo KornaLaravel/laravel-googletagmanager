@@ -25,10 +25,10 @@ class GoogleTagManager
         protected string $id,
         protected string $gtmScriptDomain,
     ) {
-        $this->dataLayer = new DataLayer();
-        $this->flashDataLayer = new DataLayer();
-        $this->pushDataLayer = new Collection();
-        $this->flashPushDataLayer = new Collection();
+        $this->dataLayer = new DataLayer;
+        $this->flashDataLayer = new DataLayer;
+        $this->pushDataLayer = new Collection;
+        $this->flashPushDataLayer = new Collection;
     }
 
     /**
@@ -40,7 +40,7 @@ class GoogleTagManager
     }
 
     /**
-     * @return $this 
+     * @return $this
      */
     public function setId(string $id): self
     {
@@ -120,7 +120,7 @@ class GoogleTagManager
      */
     public function push(array|string $key, mixed $value = null): void
     {
-        $pushItem = new DataLayer();
+        $pushItem = new DataLayer;
         $pushItem->set($key, $value);
         $this->pushDataLayer->push($pushItem);
     }
@@ -140,7 +140,7 @@ class GoogleTagManager
      */
     public function flashPush(array|string $key, mixed $value = null): void
     {
-        $pushItem = new DataLayer();
+        $pushItem = new DataLayer;
         $pushItem->set($key, $value);
         $this->flashPushDataLayer->push($pushItem);
     }
@@ -160,14 +160,14 @@ class GoogleTagManager
      */
     public function clear(): void
     {
-        $this->dataLayer = new DataLayer();
-        $this->pushDataLayer = new Collection();
+        $this->dataLayer = new DataLayer;
+        $this->pushDataLayer = new Collection;
     }
 
     /**
      * Utility function to dump an array as json.
      *
-     * @param  array<string, mixed> $data
+     * @param  array<string, mixed>  $data
      */
     public function dump(array $data): string
     {

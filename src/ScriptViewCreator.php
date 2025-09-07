@@ -14,7 +14,7 @@ class ScriptViewCreator
     public function create(View $view): void
     {
         if ($this->googleTagManager->isEnabled() && empty($this->googleTagManager->id())) {
-            throw new ApiKeyNotSetException();
+            throw new ApiKeyNotSetException;
         }
 
         $view

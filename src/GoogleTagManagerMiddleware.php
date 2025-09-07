@@ -6,17 +6,12 @@ use Closure;
 use Illuminate\Config\Repository as Config;
 use Illuminate\Http\Request;
 use Illuminate\Session\Store as Session;
-use Spatie\GoogleTagManager\GoogleTagManager;
 use Symfony\Component\HttpFoundation\Response;
 
 class GoogleTagManagerMiddleware
 {
     protected string $sessionKey;
 
-    /**
-     * @param \Spatie\GoogleTagManager\GoogleTagManager $googleTagManager
-     * @param \Illuminate\Session\Store $session
-     */
     public function __construct(
         protected GoogleTagManager $googleTagManager,
         protected Session $session,
@@ -32,7 +27,7 @@ class GoogleTagManagerMiddleware
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $flashPushKey = $this->sessionKey . ':push';
+        $flashPushKey = $this->sessionKey.':push';
 
         if ($this->session->has($this->sessionKey)) {
             $this->googleTagManager->set($this->session->get($this->sessionKey));
@@ -49,7 +44,7 @@ class GoogleTagManagerMiddleware
         $this->session->flash(
             $flashPushKey,
             $this->googleTagManager->getFlashPushData()
-                ->map(fn(DataLayer $dataLayer) => $dataLayer->toArray())
+                ->map(fn (DataLayer $dataLayer) => $dataLayer->toArray())
                 ->toArray()
         );
 

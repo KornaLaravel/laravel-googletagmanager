@@ -25,7 +25,7 @@ it('sets flashed data to the data layer', function () {
     $this->session->method('has')->willReturn(true);
     $this->session->method('get')->willReturn(['key' => 'value']);
 
-    $this->tagManagerMiddleware->handle(new Request(), function () {});
+    $this->tagManagerMiddleware->handle(new Request, function () {});
 
     expect($this->tagManager->getDataLayer()->toArray())->toBe([
         'key' => 'value',
@@ -36,7 +36,7 @@ it('pushes flashed pushes to the push data layer', function () {
     $this->session->method('has')->willReturnOnConsecutiveCalls(false, true);
     $this->session->method('get')->willReturn([['key' => 'value']]);
 
-    $this->tagManagerMiddleware->handle(new Request(), function () {});
+    $this->tagManagerMiddleware->handle(new Request, function () {});
 
     expect($this->tagManager->getPushData())
         ->toHaveCount(1);
@@ -58,7 +58,7 @@ it('flashes the flash data to the session', function () {
             })->evaluate($value, returnResult: true);
         }));
 
-    $this->tagManagerMiddleware->handle(new Request(), function () {});
+    $this->tagManagerMiddleware->handle(new Request, function () {});
 });
 
 it('flashes the flash push data to the session', function () {
@@ -85,5 +85,5 @@ it('flashes the flash push data to the session', function () {
             }),
         );
 
-    $this->tagManagerMiddleware->handle(new Request(), function () {});
+    $this->tagManagerMiddleware->handle(new Request, function () {});
 });

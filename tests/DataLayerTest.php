@@ -10,13 +10,13 @@ beforeEach(function () {
 });
 
 it('sets from key and value', function () {
-    $dataLayer = new DataLayer();
+    $dataLayer = new DataLayer;
     $dataLayer->set('key', 'value');
     expect($dataLayer->toArray())->toBe(['key' => 'value']);
 });
 
 it('sets from an array', function () {
-    $dataLayer = new DataLayer();
+    $dataLayer = new DataLayer;
     $dataLayer->set(['key' => 'value']);
     expect($dataLayer->toArray())->toBe(['key' => 'value']);
 });
