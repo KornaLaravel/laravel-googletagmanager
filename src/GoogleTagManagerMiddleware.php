@@ -17,13 +17,13 @@ class GoogleTagManagerMiddleware
         protected Session $session,
         protected Config $config,
     ) {
-        $this->sessionKey = $config->get('googletagmanager.sessionKey');
+        $this->sessionKey = $config->string('googletagmanager.sessionKey');
     }
 
     /**
      * Handle an incoming request.
      *
-     * @param  \Closure(Request): Response  $next
+     * @param  Closure(Request): Response  $next
      */
     public function handle(Request $request, Closure $next): Response
     {
@@ -32,6 +32,7 @@ class GoogleTagManagerMiddleware
         if ($this->session->has($this->sessionKey)) {
             $this->googleTagManager->set($this->session->get($this->sessionKey));
         }
+        
         if ($this->session->has($flashPushKey)) {
             foreach ($this->session->get($flashPushKey) as $pushData) {
                 $this->googleTagManager->push($pushData);

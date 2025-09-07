@@ -5,13 +5,14 @@ use Illuminate\Http\Request;
 use Illuminate\Session\Store;
 use Spatie\GoogleTagManager\GoogleTagManager;
 use Spatie\GoogleTagManager\GoogleTagManagerMiddleware;
+use Symfony\Component\HttpFoundation\Response;
 
 covers(GoogleTagManagerMiddleware::class);
 
 beforeEach(function () {
     $this->session = $this->createMock(Store::class);
     $this->config = $this->createMock(Repository::class);
-    $this->config->method('get')->willReturn('key');
+    $this->config->method('string')->willReturn('key');
 
     $this->tagManager = new GoogleTagManager('', '');
     $this->tagManagerMiddleware = new GoogleTagManagerMiddleware(
@@ -25,7 +26,7 @@ it('sets flashed data to the data layer', function () {
     $this->session->method('has')->willReturn(true);
     $this->session->method('get')->willReturn(['key' => 'value']);
 
-    $this->tagManagerMiddleware->handle(new Request, function () {});
+    $this->tagManagerMiddleware->handle(new Request, fn () => new Response());
 
     expect($this->tagManager->getDataLayer()->toArray())->toBe([
         'key' => 'value',
@@ -36,7 +37,7 @@ it('pushes flashed pushes to the push data layer', function () {
     $this->session->method('has')->willReturnOnConsecutiveCalls(false, true);
     $this->session->method('get')->willReturn([['key' => 'value']]);
 
-    $this->tagManagerMiddleware->handle(new Request, function () {});
+    $this->tagManagerMiddleware->handle(new Request, fn () => new Response());
 
     expect($this->tagManager->getPushData())
         ->toHaveCount(1);
@@ -54,11 +55,11 @@ it('flashes the flash data to the session', function () {
 
             return (match (++$i) {
                 1 => self::equalTo('key'),
-                2 => self::stringEndsWith(':push'),
+                2 => self::equalTo('key:push'),
             })->evaluate($value, returnResult: true);
         }));
 
-    $this->tagManagerMiddleware->handle(new Request, function () {});
+    $this->tagManagerMiddleware->handle(new Request, fn () => new Response());
 });
 
 it('flashes the flash push data to the session', function () {
@@ -85,5 +86,5 @@ it('flashes the flash push data to the session', function () {
             }),
         );
 
-    $this->tagManagerMiddleware->handle(new Request, function () {});
+    $this->tagManagerMiddleware->handle(new Request, fn () => new Response());
 });

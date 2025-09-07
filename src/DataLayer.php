@@ -14,6 +14,8 @@ class DataLayer
     /**
      * Add data to the data layer. Supports dot notation.
      * Inspired by laravel's config repository class.
+     *
+     * @param array<string, mixed>|string $key
      */
     public function set(array|string $key, mixed $value = null): void
     {
@@ -51,6 +53,6 @@ class DataLayer
      */
     public function toJson(): string
     {
-        return json_encode($this->data, JSON_UNESCAPED_UNICODE);
+        return json_encode($this->data, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR);
     }
 }

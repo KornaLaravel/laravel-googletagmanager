@@ -11,20 +11,20 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest]
         php: [8.4, 8.3, 8.2]
-        laravel: [12.*, 11.*, 10.*]
+        laravel: [12.*]
 
     name: P${{ matrix.php }} - L${{ matrix.laravel }} - ${{ matrix.stability }} - ${{ matrix.os }}
 
     steps:
       -  name: Checkout code
-         uses: actions/checkout@v2
+         uses: actions/checkout@v5
 
       -  name: Setup PHP
          uses: shivammathur/setup-php@v2
          with:
            php-version: ${{ matrix.php }}
            extensions: fileinfo
-           coverage: none
+           coverage: pcov
 
       -  name: Setup problem matchers
          run: |
@@ -37,4 +37,4 @@ jobs:
            composer update --prefer-stable --prefer-dist --no-interaction --no-suggest
 
       -  name: Execute tests
-         run: vendor/bin/phpunit --no-coverage
+         run: vendor/bin/pest --coverage
