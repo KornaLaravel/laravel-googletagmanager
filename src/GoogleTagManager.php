@@ -170,6 +170,8 @@ class GoogleTagManager
     {
         $this->dataLayer = new DataLayer;
         $this->pushDataLayer = new Collection;
+        $this->flashDataLayer = new DataLayer;
+        $this->flashPushDataLayer = new Collection;
     }
 
     /**
