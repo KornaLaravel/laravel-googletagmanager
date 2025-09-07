@@ -1,123 +1,89 @@
 <?php
 
-namespace Spatie\GoogleTagManager\Tests;
-
-use Illuminate\Config\Repository as Cache;
+use Illuminate\Config\Repository;
 use Illuminate\Http\Request;
-use Illuminate\Session\Store as Session;
-use PHPUnit\Framework\Attributes\CoversClass;
-use PHPUnit\Framework\Attributes\Small;
-use PHPUnit\Framework\Attributes\Test;
-use PHPUnit\Framework\Attributes\UsesClass;
-use PHPUnit\Framework\TestCase;
+use Illuminate\Session\Store;
 use Spatie\GoogleTagManager\GoogleTagManager;
 use Spatie\GoogleTagManager\GoogleTagManagerMiddleware;
 
-#[CoversClass(GoogleTagManagerMiddleware::class)]
-#[UsesClass(GoogleTagManager::class)]
-class GoogleTagManagerMiddlewareTest extends TestCase
-{
-    /** @var Session&\PHPUnit\Framework\MockObject\MockObject */
-    private $session;
+covers(GoogleTagManagerMiddleware::class);
 
-    /** @var Cache&\PHPUnit\Framework\MockObject\MockObject */
-    private $cache;
+beforeEach(function () {
+    $this->session = $this->createMock(Store::class);
+    $this->config = $this->createMock(Repository::class);
+    $this->config->method('get')->willReturn('key');
 
-    protected function setUp(): void
-    {
-        parent::setUp();
-        $this->session = $this->createMock(Session::class);
-        $this->cache = $this->createMock(Cache::class);
+    $this->tagManager = new GoogleTagManager('', '');
+    $this->tagManagerMiddleware = new GoogleTagManagerMiddleware(
+        $this->tagManager,
+        $this->session,
+        $this->config
+    );
+});
 
-        $this->cache->method('get')->willReturn('key');
-    }
+it('sets flashed data to the data layer', function () {
+    $this->session->method('has')->willReturn(true);
+    $this->session->method('get')->willReturn(['key' => 'value']);
 
-    #[Test]
-    public function it_sets_flashed_data_to_the_data_layer()
-    {
-        $tagManager = new GoogleTagManager('', '');
-        $middleware = new GoogleTagManagerMiddleware($tagManager, $this->session, $this->cache);
+    $this->tagManagerMiddleware->handle(new Request(), function () {});
 
-        $this->session->method('has')->willReturn(true);
-        $this->session->method('get')->willReturn(['key' => 'value']);
+    expect($this->tagManager->getDataLayer()->toArray())->toBe([
+        'key' => 'value',
+    ]);
+});
 
-        $middleware->handle(new Request(), function () {});
+it('pushes flashed pushes to the push data layer', function () {
+    $this->session->method('has')->willReturnOnConsecutiveCalls(false, true);
+    $this->session->method('get')->willReturn([['key' => 'value']]);
 
-        self::assertEquals([
-            'key' => 'value',
-        ], $tagManager->getDataLayer()->toArray());
-    }
+    $this->tagManagerMiddleware->handle(new Request(), function () {});
 
-    #[Test]
-    public function it_pushes_flashed_pushes_to_the_push_data_layer()
-    {
-        $tagManager = new GoogleTagManager('', '');
-        $middleware = new GoogleTagManagerMiddleware($tagManager, $this->session, $this->cache);
+    expect($this->tagManager->getPushData())
+        ->toHaveCount(1);
+    expect($this->tagManager->getPushData()->first()->toArray())
+        ->toBe(['key' => 'value']);
+});
 
-        $this->session->method('has')->willReturnOnConsecutiveCalls(false, true);
-        $this->session->method('get')->willReturn([['key' => 'value']]);
+it('flashes the flash data to the session', function () {
+    $this->tagManager->flash('key', 'value');
 
-        $middleware->handle(new Request(), function () {});
+    $this->session->expects($this->exactly(2))
+        ->method('flash')
+        ->with(self::callback(static function ($value) {
+            static $i = 0;
 
-        self::assertCount(1, $tagManager->getPushData());
-        self::assertEquals([
-            'key' => 'value',
-        ], $tagManager->getPushData()->first()->toArray());
-    }
+            return (match (++$i) {
+                1 => self::equalTo('key'),
+                2 => self::stringEndsWith(':push'),
+            })->evaluate($value, returnResult: true);
+        }));
 
-    #[Test]
-    public function it_flashes_the_flash_data_to_the_session()
-    {
-        $tagManager = new GoogleTagManager('', '');
-        $middleware = new GoogleTagManagerMiddleware($tagManager, $this->session, $this->cache);
+    $this->tagManagerMiddleware->handle(new Request(), function () {});
+});
 
-        $tagManager->flash('key', 'value');
+it('flashes the flash push data to the session', function () {
+    $this->tagManager->flashPush('key', 'value');
 
-        $this->session->expects($this->exactly(2))
-            ->method('flash')
-            ->with(
-                self::callback(static function ($value) {
-                    static $i = 0;
+    $this->session->expects($this->exactly(2))
+        ->method('flash')
+        ->with(
+            self::callback(static function ($value) {
+                static $i = 0;
 
-                    return (match (++$i) {
-                        1 => self::equalTo('key'),
-                        2 => self::stringEndsWith(':push'),
-                    })->evaluate($value, returnResult: true);
-                }),
-            );
+                return (match (++$i) {
+                    1 => self::anything(),
+                    2 => self::stringEndsWith(':push'),
+                })->evaluate($value, returnResult: true);
+            }),
+            self::callback(static function ($value) {
+                static $i = 0;
 
-        $middleware->handle(new Request(), function () {});
-    }
+                return (match (++$i) {
+                    1 => self::anything(),
+                    2 => self::equalTo([['key' => 'value']]),
+                })->evaluate($value, returnResult: true);
+            }),
+        );
 
-    #[Test]
-    public function it_flashes_the_flash_push_data_to_the_session()
-    {
-        $tagManager = new GoogleTagManager('', '');
-        $middleware = new GoogleTagManagerMiddleware($tagManager, $this->session, $this->cache);
-
-        $tagManager->flashPush('key', 'value');
-
-        $this->session->expects($this->exactly(2))
-            ->method('flash')
-            ->with(
-                self::callback(static function ($value) {
-                    static $i = 0;
-
-                    return (match (++$i) {
-                        1 => self::anything(),
-                        2 => self::stringEndsWith(':push'),
-                    })->evaluate($value, returnResult: true);
-                }),
-                self::callback(static function ($value) {
-                    static $i = 0;
-
-                    return (match (++$i) {
-                        1 => self::anything(),
-                        2 => self::equalTo([['key' => 'value']]),
-                    })->evaluate($value, returnResult: true);
-                }),
-            );
-
-        $middleware->handle(new Request(), function () {});
-    }
-}
+    $this->tagManagerMiddleware->handle(new Request(), function () {});
+});
