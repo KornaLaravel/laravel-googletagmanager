@@ -2,24 +2,22 @@
 
 namespace Spatie\GoogleTagManager;
 
+use Illuminate\Contracts\Foundation\Application;
 use Illuminate\Support\ServiceProvider;
 use Spatie\GoogleTagManager\GoogleTagManager;
 
 class GoogleTagManagerServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the application services.
-     */
-    public function boot()
+    public function boot(): void
     {
-        $this->loadViewsFrom(__DIR__.'/../resources/views', 'googletagmanager');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'googletagmanager');
 
         $this->publishes([
-            __DIR__.'/../resources/config/config.php' => config_path('googletagmanager.php'),
+            __DIR__ . '/../resources/config/config.php' => config_path('googletagmanager.php'),
         ], 'config');
 
         $this->publishes([
-            __DIR__.'/../resources/views' => base_path('resources/views/vendor/googletagmanager'),
+            __DIR__ . '/../resources/views' => base_path('resources/views/vendor/googletagmanager'),
         ], 'views');
 
         $this->app['view']->creator(
@@ -28,14 +26,11 @@ class GoogleTagManagerServiceProvider extends ServiceProvider
         );
     }
 
-    /**
-     * Register the application services.
-     */
-    public function register()
+    public function register(): void
     {
-        $this->mergeConfigFrom(__DIR__.'/../resources/config/config.php', 'googletagmanager');
+        $this->mergeConfigFrom(__DIR__ . '/../resources/config/config.php', 'googletagmanager');
 
-        $this->app->singleton(GoogleTagManager::class, function($app) {
+        $this->app->singleton(GoogleTagManager::class, function (): GoogleTagManager {
             $googleTagManager = new GoogleTagManager(
                 config('googletagmanager.id'),
                 config('googletagmanager.domain')

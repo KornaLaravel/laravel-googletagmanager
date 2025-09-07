@@ -4,48 +4,35 @@ namespace Spatie\GoogleTagManager;
 
 use Closure;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Http\Request;
 use Illuminate\Session\Store as Session;
 use Spatie\GoogleTagManager\GoogleTagManager;
+use Symfony\Component\HttpFoundation\Response;
 
 class GoogleTagManagerMiddleware
 {
-    /**
-     * @var \Spatie\GoogleTagManager\GoogleTagManager
-     */
-    protected $googleTagManager;
-
-    /**
-     * @var \Illuminate\Session\Store
-     */
-    protected $session;
-
-    /**
-     * @var string
-     */
-    protected $sessionKey;
+    protected string $sessionKey;
 
     /**
      * @param \Spatie\GoogleTagManager\GoogleTagManager $googleTagManager
      * @param \Illuminate\Session\Store $session
      */
-    public function __construct(GoogleTagManager $googleTagManager, Session $session, Config $config)
-    {
-        $this->googleTagManager = $googleTagManager;
-        $this->session = $session;
-
+    public function __construct(
+        protected GoogleTagManager $googleTagManager,
+        protected Session $session,
+        protected Config $config,
+    ) {
         $this->sessionKey = $config->get('googletagmanager.sessionKey');
     }
 
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
+     * @param  \Closure(Request): Response  $next
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
-        $flashPushKey = $this->sessionKey.':push';
+        $flashPushKey = $this->sessionKey . ':push';
 
         if ($this->session->has($this->sessionKey)) {
             $this->googleTagManager->set($this->session->get($this->sessionKey));
@@ -59,9 +46,12 @@ class GoogleTagManagerMiddleware
         $response = $next($request);
 
         $this->session->flash($this->sessionKey, $this->googleTagManager->getFlashData());
-        $this->session->flash($flashPushKey, $this->googleTagManager->getFlashPushData()->map(function ($dataLayer) {
-            return $dataLayer->toArray();
-        })->toArray());
+        $this->session->flash(
+            $flashPushKey,
+            $this->googleTagManager->getFlashPushData()
+                ->map(fn(DataLayer $dataLayer) => $dataLayer->toArray())
+                ->toArray()
+        );
 
         return $response;
     }

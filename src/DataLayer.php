@@ -6,24 +6,16 @@ use Illuminate\Support\Arr;
 
 class DataLayer
 {
-    /**
-     * @var array
-     */
-    protected $data;
-
-    public function __construct($data = [])
-    {
-        $this->data = $data;
-    }
+    public function __construct(
+        /** @var array<string, mixed> */
+        protected array $data = [],
+    ) {}
 
     /**
      * Add data to the data layer. Supports dot notation.
      * Inspired by laravel's config repository class.
-     *
-     * @param array|string $key
-     * @param mixed        $value
      */
-    public function set($key, $value = null)
+    public function set(array|string $key, mixed $value = null): void
     {
         if (is_array($key)) {
             foreach ($key as $innerKey => $innerValue) {
@@ -39,7 +31,7 @@ class DataLayer
     /**
      * Empty the data layer.
      */
-    public function clear()
+    public function clear(): void
     {
         $this->data = [];
     }
@@ -47,19 +39,17 @@ class DataLayer
     /**
      * Return an array representation of the data layer.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function toArray()
+    public function toArray(): array
     {
         return $this->data;
     }
 
     /**
      * Return a json representation of the data layer.
-     *
-     * @return string
      */
-    public function toJson()
+    public function toJson(): string
     {
         return json_encode($this->data, JSON_UNESCAPED_UNICODE);
     }
