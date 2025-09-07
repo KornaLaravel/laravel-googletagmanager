@@ -84,7 +84,7 @@ class GoogleTagManager
     /**
      * Add data to the data layer.
      *
-     * @param array<string, mixed>|string $key
+     * @param  array<string, mixed>|string  $key
      */
     public function set(array|string $key, mixed $value = null): void
     {
@@ -102,7 +102,7 @@ class GoogleTagManager
     /**
      * Add data to the data layer for the next request.
      *
-     * @param array<string, mixed>|string $key
+     * @param  array<string, mixed>|string  $key
      */
     public function flash(array|string $key, mixed $value = null): void
     {
@@ -122,7 +122,7 @@ class GoogleTagManager
     /**
      * Add data to be pushed to the data layer.
      *
-     * @param array<string, mixed>|string $key
+     * @param  array<string, mixed>|string  $key
      */
     public function push(array|string $key, mixed $value = null): void
     {
@@ -144,7 +144,7 @@ class GoogleTagManager
     /**
      * Add data to be pushed to the data layer for the next request.
      *
-     * @param array<string, mixed>|string $key
+     * @param  array<string, mixed>|string  $key
      */
     public function flashPush(array|string $key, mixed $value = null): void
     {

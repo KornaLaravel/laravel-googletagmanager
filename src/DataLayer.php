@@ -2,9 +2,14 @@
 
 namespace Spatie\GoogleTagManager;
 
+use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
+use Override;
 
-class DataLayer
+/**
+ * @implements Arrayable<string, mixed>
+ */
+class DataLayer implements Arrayable
 {
     public function __construct(
         /** @var array<string, mixed> */
@@ -15,7 +20,7 @@ class DataLayer
      * Add data to the data layer. Supports dot notation.
      * Inspired by laravel's config repository class.
      *
-     * @param array<string, mixed>|string $key
+     * @param  array<string, mixed>|string  $key
      */
     public function set(array|string $key, mixed $value = null): void
     {
@@ -43,6 +48,7 @@ class DataLayer
      *
      * @return array<string, mixed>
      */
+    #[Override]
     public function toArray(): array
     {
         return $this->data;

@@ -2,6 +2,9 @@
 
 namespace Spatie\GoogleTagManager;
 
+use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\ServiceProvider;
 
 class GoogleTagManagerServiceProvider extends ServiceProvider
@@ -11,14 +14,14 @@ class GoogleTagManagerServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'googletagmanager');
 
         $this->publishes([
-            __DIR__.'/../resources/config/config.php' => config_path('googletagmanager.php'),
+            __DIR__.'/../resources/config/config.php' => $this->app->configPath('googletagmanager.php'),
         ], 'config');
 
         $this->publishes([
-            __DIR__.'/../resources/views' => base_path('resources/views/vendor/googletagmanager'),
+            __DIR__.'/../resources/views' => $this->app->basePath('resources/views/vendor/googletagmanager'),
         ], 'views');
 
-        $this->app['view']->creator(
+        $this->app->make(Factory::class)->creator(
             ['googletagmanager::head', 'googletagmanager::body', 'googletagmanager::script'],
             'Spatie\GoogleTagManager\ScriptViewCreator'
         );
@@ -28,22 +31,24 @@ class GoogleTagManagerServiceProvider extends ServiceProvider
     {
         $this->mergeConfigFrom(__DIR__.'/../resources/config/config.php', 'googletagmanager');
 
-        $this->app->singleton(GoogleTagManager::class, function (): GoogleTagManager {
+        $this->app->scoped(GoogleTagManager::class, function (Application $app): GoogleTagManager {
             $googleTagManager = new GoogleTagManager(
-                config('googletagmanager.id'),
-                config('googletagmanager.domain')
+                $app->make(ConfigRepository::class)->string('googletagmanager.id'),
+                $app->make(ConfigRepository::class)->string('googletagmanager.domain'),
             );
 
-            if (config('googletagmanager.enabled') === false) {
+            if ($app->make(ConfigRepository::class)->boolean('googletagmanager.enabled') === false) {
                 $googleTagManager->disable();
             }
 
             return $googleTagManager;
         });
+
         $this->app->alias(GoogleTagManager::class, 'googletagmanager');
 
-        if (is_file(config('googletagmanager.macroPath'))) {
-            include config('googletagmanager.macroPath');
+        $macroPath = $this->app->make(ConfigRepository::class)->get('googletagmanager.macroPath');
+        if (is_string($macroPath) && is_file($macroPath)) {
+            include $macroPath;
         }
     }
 }
