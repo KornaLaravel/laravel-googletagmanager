@@ -29,12 +29,14 @@ class GoogleTagManagerMiddleware
     {
         $flashPushKey = $this->sessionKey.':push';
 
-        if ($data = $this->session->get($this->sessionKey)) {
+        if (($data = $this->session->get($this->sessionKey))) {
+            /** @var array<string, mixed> $data */
             $this->googleTagManager->set($data);
         }
 
-        if ($flashPushData = $this->session->get($flashPushKey)) {
+        if (($flashPushData = $this->session->get($flashPushKey)) && is_array($flashPushData)) {
             foreach ($flashPushData as $pushData) {
+                /** @var array<string, mixed> $pushData */
                 $this->googleTagManager->push($pushData);
             }
         }
