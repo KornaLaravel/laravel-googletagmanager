@@ -2,7 +2,6 @@
 
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\ViewException;
-use Spatie\GoogleTagManager\Exceptions\ApiKeyNotSetException;
 
 beforeEach(function () {
     $this->app->make('config')->set('googletagmanager.id', 'GTM-XXXX');
