@@ -4,7 +4,6 @@ namespace Spatie\GoogleTagManager;
 
 use Illuminate\Contracts\Support\Arrayable;
 use Illuminate\Support\Arr;
-use Override;
 
 /**
  * @implements Arrayable<string, mixed>
@@ -48,7 +47,6 @@ class DataLayer implements Arrayable
      *
      * @return array<string, mixed>
      */
-    #[Override]
     public function toArray(): array
     {
         return $this->data;
