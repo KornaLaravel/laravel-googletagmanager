@@ -2,67 +2,48 @@
 
 namespace Spatie\GoogleTagManager;
 
+use Illuminate\Config\Repository as ConfigRepository;
+use Illuminate\Contracts\Foundation\Application;
+use Illuminate\Contracts\View\Factory;
 use Illuminate\Support\ServiceProvider;
-use Spatie\GoogleTagManager\GoogleTagManager;
 
 class GoogleTagManagerServiceProvider extends ServiceProvider
 {
-    /**
-     * Bootstrap the application services.
-     */
-    public function boot()
+    public function boot(): void
     {
         $this->loadViewsFrom(__DIR__.'/../resources/views', 'googletagmanager');
 
         $this->publishes([
-            __DIR__.'/../resources/config/config.php' => config_path('googletagmanager.php'),
+            __DIR__.'/../resources/config/config.php' => $this->app->configPath('googletagmanager.php'),
         ], 'config');
 
         $this->publishes([
-            __DIR__.'/../resources/views' => base_path('resources/views/vendor/googletagmanager'),
+            __DIR__.'/../resources/views' => $this->app->basePath('resources/views/vendor/googletagmanager'),
         ], 'views');
 
-        $this->app['view']->creator(
+        $this->app->make(Factory::class)->creator(
             ['googletagmanager::head', 'googletagmanager::body', 'googletagmanager::script'],
             'Spatie\GoogleTagManager\ScriptViewCreator'
         );
     }
 
-    /**
-     * Register the application services.
-     */
-    public function register()
+    public function register(): void
     {
         $this->mergeConfigFrom(__DIR__.'/../resources/config/config.php', 'googletagmanager');
 
-        if (method_exists($this->app, 'scoped')) {
-            $this->app->scoped(GoogleTagManager::class, function($app) {
-                return $this->createGoogleTagManagerInstance($app);
-            });
-        } else {
-            $this->app->singleton(GoogleTagManager::class, function($app) {
-                return $this->createGoogleTagManagerInstance($app);
-            });
-        }
+        $this->app->scoped(GoogleTagManager::class, function (Application $app): GoogleTagManager {
+            $googleTagManager = new GoogleTagManager(
+                $app->make(ConfigRepository::class)->string('googletagmanager.id'),
+                $app->make(ConfigRepository::class)->string('googletagmanager.domain'),
+            );
+
+            if ($app->make(ConfigRepository::class)->boolean('googletagmanager.enabled') === false) {
+                $googleTagManager->disable();
+            }
+
+            return $googleTagManager;
+        });
 
         $this->app->alias(GoogleTagManager::class, 'googletagmanager');
-
-        if (is_file(config('googletagmanager.macroPath'))) {
-            include config('googletagmanager.macroPath');
-        }
-    }
-
-    protected function createGoogleTagManagerInstance($app)
-    {
-        $googleTagManager = new GoogleTagManager(
-            config('googletagmanager.id'),
-            config('googletagmanager.domain')
-        );
-
-        if (config('googletagmanager.enabled') === false) {
-            $googleTagManager->disable();
-        }
-
-        return $googleTagManager;
     }
 }

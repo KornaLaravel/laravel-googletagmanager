@@ -1,0 +1,60 @@
+name: Linting & Analysis
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  pint:
+    name: Pint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-suggest --no-progress --no-interaction --no-scripts 
+
+      - name: Execute Pint
+        run: vendor/bin/pint --test
+
+  phpstan:
+    name: PHPStan
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-suggest --no-progress --no-interaction --no-scripts
+
+      - name: Execute PHPStan
+        run: vendor/bin/phpstan analyse
+
+  pest-type-coverage:
+    name: Pest Type Coverage
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: 8.4
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-suggest --no-progress --no-interaction --no-scripts
+
+      - name: Execute Pest
+        run: vendor/bin/pest --type-coverage --min=100

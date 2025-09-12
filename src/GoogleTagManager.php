@@ -9,68 +9,40 @@ class GoogleTagManager
 {
     use Macroable;
 
-    /**
-     * @var string
-     */
-    protected $id;
+    protected bool $enabled = true;
 
-    /**
-     * @var bool
-     */
-    protected $enabled;
+    protected DataLayer $dataLayer;
 
-    /**
-     * @var string
-     */
-    protected $gtmScriptDomain;
+    protected DataLayer $flashDataLayer;
 
-    /**
-     * @var \Spatie\GoogleTagManager\DataLayer
-     */
-    protected $dataLayer;
+    /** @var Collection<int, DataLayer> */
+    protected Collection $pushDataLayer;
 
-    /**
-     * @var \Spatie\GoogleTagManager\DataLayer
-     */
-    protected $flashDataLayer;
+    /** @var Collection<int, DataLayer> */
+    protected Collection $flashPushDataLayer;
 
-    /**
-     * @var \Illuminate\Support\Collection
-     */
-    protected $pushDataLayer;
-
-    /**
-     * @var \Illuminate\Support\Collection
-     */
-    protected $flashPushDataLayer;
-
-    /**
-     * @param string $id
-     * @param string $gtmScriptDomain
-     */
-    public function __construct($id, $gtmScriptDomain)
-    {
-        $this->id = $id;
-        $this->gtmScriptDomain = $gtmScriptDomain;
-        $this->dataLayer = new DataLayer();
-        $this->flashDataLayer = new DataLayer();
-        $this->pushDataLayer = new Collection();
-        $this->flashPushDataLayer = new Collection();
-
-        $this->enabled = true;
+    public function __construct(
+        protected string $id,
+        protected string $gtmScriptDomain,
+    ) {
+        $this->dataLayer = new DataLayer;
+        $this->flashDataLayer = new DataLayer;
+        $this->pushDataLayer = new Collection;
+        $this->flashPushDataLayer = new Collection;
     }
 
     /**
      * Return the Google Tag Manager id.
-     *
-     * @return string
      */
-    public function id()
+    public function id(): string
     {
         return $this->id;
     }
 
-    public function setId($id)
+    /**
+     * @return $this
+     */
+    public function setId(string $id): self
     {
         $this->id = $id;
 
@@ -79,20 +51,16 @@ class GoogleTagManager
 
     /**
      * Return the Google Tag Manager script domain.
-     *
-     * @return string
      */
-    public function gtmScriptDomain()
+    public function gtmScriptDomain(): string
     {
         return $this->gtmScriptDomain;
     }
 
     /**
      * Check whether script rendering is enabled.
-     *
-     * @return bool
      */
-    public function isEnabled()
+    public function isEnabled(): bool
     {
         return $this->enabled;
     }
@@ -100,7 +68,7 @@ class GoogleTagManager
     /**
      * Enable Google Tag Manager scripts rendering.
      */
-    public function enable()
+    public function enable(): void
     {
         $this->enabled = true;
     }
@@ -108,7 +76,7 @@ class GoogleTagManager
     /**
      * Disable Google Tag Manager scripts rendering.
      */
-    public function disable()
+    public function disable(): void
     {
         $this->enabled = false;
     }
@@ -116,20 +84,17 @@ class GoogleTagManager
     /**
      * Add data to the data layer.
      *
-     * @param array|string $key
-     * @param mixed        $value
+     * @param  array<string, mixed>|string  $key
      */
-    public function set($key, $value = null)
+    public function set(array|string $key, mixed $value = null): void
     {
         $this->dataLayer->set($key, $value);
     }
 
     /**
      * Retrieve the data layer.
-     *
-     * @return \Spatie\GoogleTagManager\DataLayer
      */
-    public function getDataLayer()
+    public function getDataLayer(): DataLayer
     {
         return $this->dataLayer;
     }
@@ -137,10 +102,9 @@ class GoogleTagManager
     /**
      * Add data to the data layer for the next request.
      *
-     * @param array|string $key
-     * @param mixed        $value
+     * @param  array<string, mixed>|string  $key
      */
-    public function flash($key, $value = null)
+    public function flash(array|string $key, mixed $value = null): void
     {
         $this->flashDataLayer->set($key, $value);
     }
@@ -148,9 +112,9 @@ class GoogleTagManager
     /**
      * Retrieve the data layer's data for the next request.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function getFlashData()
+    public function getFlashData(): array
     {
         return $this->flashDataLayer->toArray();
     }
@@ -158,12 +122,11 @@ class GoogleTagManager
     /**
      * Add data to be pushed to the data layer.
      *
-     * @param array|string $key
-     * @param mixed        $value
+     * @param  array<string, mixed>|string  $key
      */
-    public function push($key, $value = null)
+    public function push(array|string $key, mixed $value = null): void
     {
-        $pushItem = new DataLayer();
+        $pushItem = new DataLayer;
         $pushItem->set($key, $value);
         $this->pushDataLayer->push($pushItem);
     }
@@ -171,9 +134,9 @@ class GoogleTagManager
     /**
      * Retrieve the data layer's data for the next request.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection<int, \Spatie\GoogleTagManager\DataLayer>
      */
-    public function getPushData()
+    public function getPushData(): Collection
     {
         return $this->pushDataLayer;
     }
@@ -181,12 +144,11 @@ class GoogleTagManager
     /**
      * Add data to be pushed to the data layer for the next request.
      *
-     * @param array|string $key
-     * @param mixed        $value
+     * @param  array<string, mixed>|string  $key
      */
-    public function flashPush($key, $value = null)
+    public function flashPush(array|string $key, mixed $value = null): void
     {
-        $pushItem = new DataLayer();
+        $pushItem = new DataLayer;
         $pushItem->set($key, $value);
         $this->flashPushDataLayer->push($pushItem);
     }
@@ -194,9 +156,9 @@ class GoogleTagManager
     /**
      * Retrieve the push data for the next request.
      *
-     * @return \Illuminate\Support\Collection
+     * @return Collection<int, DataLayer>
      */
-    public function getFlashPushData()
+    public function getFlashPushData(): Collection
     {
         return $this->flashPushDataLayer;
     }
@@ -204,19 +166,20 @@ class GoogleTagManager
     /**
      * Clear the data layer.
      */
-    public function clear()
+    public function clear(): void
     {
-        $this->dataLayer = new DataLayer();
-        $this->pushDataLayer = new Collection();
+        $this->dataLayer = new DataLayer;
+        $this->pushDataLayer = new Collection;
+        $this->flashDataLayer = new DataLayer;
+        $this->flashPushDataLayer = new Collection;
     }
 
     /**
      * Utility function to dump an array as json.
      *
-     * @param  array $data
-     * @return string
+     * @param  array<string, mixed>  $data
      */
-    public function dump($data)
+    public function dump(array $data): string
     {
         return (new DataLayer($data))->toJson();
     }

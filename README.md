@@ -96,13 +96,6 @@ return [
      * Enable or disable script rendering. Useful for local development.
      */
     'enabled' => true,
-
-    /*
-     * If you want to use some macro's you 'll probably store them
-     * in a dedicated file. You can optionally define the path
-     * to that file here, and we will load it for you.
-     */
-    'macroPath' => '',
     
      /*
      * The key under which data is saved to the session with flash.
@@ -127,7 +120,6 @@ Example setup:
 return [
     'id' => 'GTM-XXXXXX',
     'enabled' => env('APP_ENV') === 'production',
-    'macroPath' => app_path('Services/GoogleTagManager/Macros.php'),
     'sessionKey' => '_googleTagManager',
     // Base domain used in your GTM server container
     'domain' => 'gtm.yourdomain.com',
@@ -324,6 +316,8 @@ $dataLayer = GoogleTagManager::getDataLayer();
 
 Adding tags to pages can become a repetitive process. Since this package isn't supposed to be opinionated on what your tags should look like, the GoogleTagManager is macroable.
 
+A snippet to define a macro could look like this, registering it in a service provider's boot method:
+
 ```php
 GoogleTagManager::macro('impression', function ($product) {
     GoogleTagManager::set('ecommerce', [
@@ -336,8 +330,6 @@ GoogleTagManager::macro('impression', function ($product) {
 
 GoogleTagManager::impression($product);
 ```
-
-In the configuration you can optionally set the path to the file that contains your macros.
 
 ## Changelog
 

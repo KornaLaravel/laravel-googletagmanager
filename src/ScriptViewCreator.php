@@ -2,23 +2,19 @@
 
 namespace Spatie\GoogleTagManager;
 
-use Illuminate\View\View;
+use Illuminate\Contracts\View\View;
 use Spatie\GoogleTagManager\Exceptions\ApiKeyNotSetException;
 
 class ScriptViewCreator
 {
-    /** @var \Spatie\GoogleTagManager\GoogleTagManager */
-    protected $googleTagManager;
+    public function __construct(
+        protected GoogleTagManager $googleTagManager,
+    ) {}
 
-    public function __construct(GoogleTagManager $googleTagManager)
-    {
-        $this->googleTagManager = $googleTagManager;
-    }
-
-    public function create(View $view)
+    public function create(View $view): void
     {
         if ($this->googleTagManager->isEnabled() && empty($this->googleTagManager->id())) {
-            throw new ApiKeyNotSetException();
+            throw new ApiKeyNotSetException;
         }
 
         $view

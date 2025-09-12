@@ -4,54 +4,39 @@ namespace Spatie\GoogleTagManager;
 
 use Closure;
 use Illuminate\Config\Repository as Config;
+use Illuminate\Http\Request;
 use Illuminate\Session\Store as Session;
-use Spatie\GoogleTagManager\GoogleTagManager;
+use Symfony\Component\HttpFoundation\Response;
 
 class GoogleTagManagerMiddleware
 {
-    /**
-     * @var \Spatie\GoogleTagManager\GoogleTagManager
-     */
-    protected $googleTagManager;
+    protected string $sessionKey;
 
-    /**
-     * @var \Illuminate\Session\Store
-     */
-    protected $session;
-
-    /**
-     * @var string
-     */
-    protected $sessionKey;
-
-    /**
-     * @param \Spatie\GoogleTagManager\GoogleTagManager $googleTagManager
-     * @param \Illuminate\Session\Store $session
-     */
-    public function __construct(GoogleTagManager $googleTagManager, Session $session, Config $config)
-    {
-        $this->googleTagManager = $googleTagManager;
-        $this->session = $session;
-
-        $this->sessionKey = $config->get('googletagmanager.sessionKey');
+    public function __construct(
+        protected GoogleTagManager $googleTagManager,
+        protected Session $session,
+        protected Config $config,
+    ) {
+        $this->sessionKey = $config->string('googletagmanager.sessionKey');
     }
 
     /**
      * Handle an incoming request.
      *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure  $next
-     * @return mixed
+     * @param  Closure(Request): Response  $next
      */
-    public function handle($request, Closure $next)
+    public function handle(Request $request, Closure $next): Response
     {
         $flashPushKey = $this->sessionKey.':push';
 
-        if ($this->session->has($this->sessionKey)) {
-            $this->googleTagManager->set($this->session->get($this->sessionKey));
+        if (($data = $this->session->get($this->sessionKey))) {
+            /** @var array<string, mixed> $data */
+            $this->googleTagManager->set($data);
         }
-        if ($this->session->has($flashPushKey)) {
-            foreach ($this->session->get($flashPushKey) as $pushData) {
+
+        if (($flashPushData = $this->session->get($flashPushKey)) && is_array($flashPushData)) {
+            foreach ($flashPushData as $pushData) {
+                /** @var array<string, mixed> $pushData */
                 $this->googleTagManager->push($pushData);
             }
         }
@@ -59,9 +44,10 @@ class GoogleTagManagerMiddleware
         $response = $next($request);
 
         $this->session->flash($this->sessionKey, $this->googleTagManager->getFlashData());
-        $this->session->flash($flashPushKey, $this->googleTagManager->getFlashPushData()->map(function ($dataLayer) {
-            return $dataLayer->toArray();
-        })->toArray());
+        $this->session->flash(
+            $flashPushKey,
+            $this->googleTagManager->getFlashPushData()->toArray()
+        );
 
         return $response;
     }

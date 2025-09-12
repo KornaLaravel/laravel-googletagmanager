@@ -2,6 +2,6 @@
 
 namespace Spatie\GoogleTagManager\Exceptions;
 
-class ApiKeyNotSetException extends \Exception
-{
-}
+use Exception;
+
+class ApiKeyNotSetException extends Exception {}
