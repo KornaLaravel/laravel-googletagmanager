@@ -2,6 +2,19 @@
 
 All notable changes to `laravel-googletagmanager` will be documented in this file
 
+## 3.0.0 - 2025-09-12
+
+### What's Changed
+
+* Update issue template by @AlexVanderbist in https://github.com/spatie/laravel-googletagmanager/pull/59
+* 3.x by @bram-pkg in https://github.com/spatie/laravel-googletagmanager/pull/58
+
+### New Contributors
+
+* @AlexVanderbist made their first contribution in https://github.com/spatie/laravel-googletagmanager/pull/59
+
+**Full Changelog**: https://github.com/spatie/laravel-googletagmanager/compare/2.8.1...3.0.0
+
 ## 2.8.1 - 2025-08-18
 
 ### What's Changed
