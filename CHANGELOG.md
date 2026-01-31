@@ -2,6 +2,23 @@
 
 All notable changes to `laravel-googletagmanager` will be documented in this file
 
+## 3.1.0 - 2026-01-31
+
+### What's Changed
+
+#### New Features
+
+- Add CSP nonce support for script tags via `nonceEnabled` configuration option (#63)
+
+When using this package with [spatie/laravel-csp](https://github.com/spatie/laravel-csp), you can now enable CSP nonces on injected script tags:
+
+```php
+// config/googletagmanager.php
+'nonceEnabled' => env('GOOGLE_TAG_MANAGER_NONCE_ENABLED', true),
+
+```
+This uses Laravel's `Vite::cspNonce()` to inject the nonce attribute on all script tags.
+
 ## 3.0.0 - 2025-09-12
 
 ### What's Changed
