@@ -2,6 +2,10 @@
 
 All notable changes to `laravel-googletagmanager` will be documented in this file
 
+## 3.1.1 - 2026-02-21
+
+Add Laravel 13 support
+
 ## 3.1.0 - 2026-01-31
 
 ### What's Changed
@@ -15,6 +19,7 @@ When using this package with [spatie/laravel-csp](https://github.com/spatie/lara
 ```php
 // config/googletagmanager.php
 'nonceEnabled' => env('GOOGLE_TAG_MANAGER_NONCE_ENABLED', true),
+
 
 ```
 This uses Laravel's `Vite::cspNonce()` to inject the nonce attribute on all script tags.
